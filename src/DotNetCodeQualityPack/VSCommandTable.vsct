@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+
+  <Commands package="DotNetCodeQualityPack">
+    <Menus>
+      <!-- Tools > .NET Code Quality (also shown when right-clicking the solution in Solution Explorer) -->
+      <Menu guid="DotNetCodeQualityPack" id="CodeQualityMenu" priority="0x0600" type="Menu">
+        <Parent guid="DotNetCodeQualityPack" id="ToolsMenuGroup" />
+        <Strings>
+          <ButtonText>.NET Code Quality</ButtonText>
+          <CommandName>.NET Code Quality</CommandName>
+        </Strings>
+      </Menu>
+    </Menus>
+
+    <Groups>
+      <Group guid="DotNetCodeQualityPack" id="ToolsMenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS" />
+      </Group>
+      <Group guid="DotNetCodeQualityPack" id="SolutionContextGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_SOLNNODE" />
+      </Group>
+      <Group guid="DotNetCodeQualityPack" id="CodeQualityMenuGroup" priority="0x0100">
+        <Parent guid="DotNetCodeQualityPack" id="CodeQualityMenu" />
+      </Group>
+      <Group guid="DotNetCodeQualityPack" id="CodeQualityFixGroup" priority="0x0200">
+        <Parent guid="DotNetCodeQualityPack" id="CodeQualityMenu" />
+      </Group>
+      <!-- Editor right-click menu -->
+      <Group guid="DotNetCodeQualityPack" id="EditorContextGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN" />
+      </Group>
+    </Groups>
+
+    <Buttons>
+      <Button guid="DotNetCodeQualityPack" id="OpenFixerCommand" priority="0x0050" type="Button">
+        <Parent guid="DotNetCodeQualityPack" id="CodeQualityMenuGroup" />
+        <Strings>
+          <ButtonText>Open Code Quality Fixer</ButtonText>
+          <CanonicalName>.DotNetCodeQuality.OpenFixer</CanonicalName>
+          <LocCanonicalName>.DotNetCodeQuality.OpenFixer</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="DotNetCodeQualityPack" id="OpenTeamRulesCommand" priority="0x0060" type="Button">
+        <Parent guid="DotNetCodeQualityPack" id="CodeQualityMenuGroup" />
+        <Strings>
+          <ButtonText>Open Team Rules</ButtonText>
+          <CanonicalName>.DotNetCodeQuality.OpenTeamRules</CanonicalName>
+          <LocCanonicalName>.DotNetCodeQuality.OpenTeamRules</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="DotNetCodeQualityPack" id="OpenCodeCompassCommand" priority="0x0070" type="Button">
+        <Parent guid="DotNetCodeQualityPack" id="CodeQualityMenuGroup" />
+        <Strings>
+          <ButtonText>Open Code Compass (AI Chat &amp; Review)</ButtonText>
+          <CanonicalName>.DotNetCodeQuality.OpenCodeCompass</CanonicalName>
+          <LocCanonicalName>.DotNetCodeQuality.OpenCodeCompass</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="DotNetCodeQualityPack" id="ReviewWithCodeCompassCommand" priority="0x0100" type="Button">
+        <Parent guid="DotNetCodeQualityPack" id="EditorContextGroup" />
+        <Strings>
+          <ButtonText>Review Selection with Code Compass</ButtonText>
+          <CanonicalName>.DotNetCodeQuality.ReviewWithCodeCompass</CanonicalName>
+          <LocCanonicalName>.DotNetCodeQuality.ReviewWithCodeCompass</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="DotNetCodeQualityPack" id="CheckSolutionCommand" priority="0x0100" type="Button">
+        <Parent guid="DotNetCodeQualityPack" id="CodeQualityMenuGroup" />
+        <Strings>
+          <ButtonText>Check Solution</ButtonText>
+          <CanonicalName>.DotNetCodeQuality.CheckSolution</CanonicalName>
+          <LocCanonicalName>.DotNetCodeQuality.CheckSolution</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="DotNetCodeQualityPack" id="ApplyStandardsCommand" priority="0x0200" type="Button">
+        <Parent guid="DotNetCodeQualityPack" id="CodeQualityMenuGroup" />
+        <Strings>
+          <ButtonText>Apply Code Quality Standards...</ButtonText>
+          <CanonicalName>.DotNetCodeQuality.ApplyStandards</CanonicalName>
+          <LocCanonicalName>.DotNetCodeQuality.ApplyStandards</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="DotNetCodeQualityPack" id="RemoveStandardsCommand" priority="0x0300" type="Button">
+        <Parent guid="DotNetCodeQualityPack" id="CodeQualityMenuGroup" />
+        <Strings>
+          <ButtonText>Remove Code Quality Standards...</ButtonText>
+          <CanonicalName>.DotNetCodeQuality.RemoveStandards</CanonicalName>
+          <LocCanonicalName>.DotNetCodeQuality.RemoveStandards</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="DotNetCodeQualityPack" id="AutoFixCommand" priority="0x0100" type="Button">
+        <Parent guid="DotNetCodeQualityPack" id="CodeQualityFixGroup" />
+        <Strings>
+          <ButtonText>Auto-Fix Warnings...</ButtonText>
+          <CanonicalName>.DotNetCodeQuality.AutoFix</CanonicalName>
+          <LocCanonicalName>.DotNetCodeQuality.AutoFix</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="DotNetCodeQualityPack" id="UndoAutoFixCommand" priority="0x0200" type="Button">
+        <Parent guid="DotNetCodeQualityPack" id="CodeQualityFixGroup" />
+        <Strings>
+          <ButtonText>Undo Last Auto-Fix...</ButtonText>
+          <CanonicalName>.DotNetCodeQuality.UndoAutoFix</CanonicalName>
+          <LocCanonicalName>.DotNetCodeQuality.UndoAutoFix</LocCanonicalName>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <CommandPlacements>
+    <CommandPlacement guid="DotNetCodeQualityPack" id="CodeQualityMenu" priority="0x0600">
+      <Parent guid="DotNetCodeQualityPack" id="SolutionContextGroup" />
+    </CommandPlacement>
+    <!-- Also under View > Other Windows -->
+    <CommandPlacement guid="DotNetCodeQualityPack" id="OpenFixerCommand" priority="0x0100">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
+    </CommandPlacement>
+    <CommandPlacement guid="DotNetCodeQualityPack" id="OpenTeamRulesCommand" priority="0x0101">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
+    </CommandPlacement>
+    <CommandPlacement guid="DotNetCodeQualityPack" id="OpenCodeCompassCommand" priority="0x0102">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
+    </CommandPlacement>
+  </CommandPlacements>
+
+  <Symbols>
+    <GuidSymbol name="DotNetCodeQualityPack" value="{def565d7-52f0-4ab0-8c41-d2b92b53bd69}">
+      <IDSymbol name="ToolsMenuGroup" value="0x0001" />
+      <IDSymbol name="SolutionContextGroup" value="0x0002" />
+      <IDSymbol name="CodeQualityMenu" value="0x0010" />
+      <IDSymbol name="CodeQualityMenuGroup" value="0x0020" />
+      <IDSymbol name="CodeQualityFixGroup" value="0x0021" />
+      <IDSymbol name="CheckSolutionCommand" value="0x0100" />
+      <IDSymbol name="ApplyStandardsCommand" value="0x0101" />
+      <IDSymbol name="RemoveStandardsCommand" value="0x0102" />
+      <IDSymbol name="AutoFixCommand" value="0x0103" />
+      <IDSymbol name="UndoAutoFixCommand" value="0x0104" />
+      <IDSymbol name="OpenFixerCommand" value="0x0105" />
+      <IDSymbol name="OpenTeamRulesCommand" value="0x0106" />
+      <IDSymbol name="EditorContextGroup" value="0x0003" />
+      <IDSymbol name="OpenCodeCompassCommand" value="0x0107" />
+      <IDSymbol name="ReviewWithCodeCompassCommand" value="0x0108" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>

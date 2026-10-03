@@ -1,0 +1,43 @@
+<Project>
+  <!--
+    .NET Code Quality Pack - analyzer packages (imported from Directory.Build.targets).
+
+    This lives in a .targets file on purpose: it is evaluated after each .csproj, so
+      - a project can switch it off with <EnableCodeQualityAnalyzers>false</EnableCodeQualityAnalyzers>
+      - a package the project already references is not added twice (no NU1504 duplicate warnings)
+  -->
+
+  <PropertyGroup>
+    <_CodeQualityEnabled>false</_CodeQualityEnabled>
+    <_CodeQualityEnabled Condition="'$(EnableCodeQualityAnalyzers)' == 'true'
+                                    and '$(MSBuildProjectExtension)' == '.csproj'
+                                    and !Exists('$(MSBuildProjectDirectory)\packages.config')">true</_CodeQualityEnabled>
+    <_CodeQualityAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</_CodeQualityAssets>
+  </PropertyGroup>
+
+  <!-- Normal projects: explicit Version. -->
+  <ItemGroup Condition="'$(_CodeQualityEnabled)' == 'true' and '$(ManagePackageVersionsCentrally)' != 'true'">
+    <PackageReference Include="Roslynator.Analyzers" Version="$(CodeQualityRoslynatorVersion)" PrivateAssets="all" IncludeAssets="$(_CodeQualityAssets)"
+                      Condition="'@(PackageReference->AnyHaveMetadataValue('Identity', 'Roslynator.Analyzers'))' != 'true'" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="$(CodeQualitySonarAnalyzerVersion)" PrivateAssets="all" IncludeAssets="$(_CodeQualityAssets)"
+                      Condition="'@(PackageReference->AnyHaveMetadataValue('Identity', 'SonarAnalyzer.CSharp'))' != 'true'" />
+    <PackageReference Include="StyleCop.Analyzers" Version="$(CodeQualityStyleCopVersion)" PrivateAssets="all" IncludeAssets="$(_CodeQualityAssets)"
+                      Condition="'@(PackageReference->AnyHaveMetadataValue('Identity', 'StyleCop.Analyzers'))' != 'true'" />
+    <PackageReference Include="Meziantou.Analyzer" Version="$(CodeQualityMeziantouVersion)" PrivateAssets="all" IncludeAssets="$(_CodeQualityAssets)"
+                      Condition="'@(PackageReference->AnyHaveMetadataValue('Identity', 'Meziantou.Analyzer'))' != 'true'" />
+  </ItemGroup>
+
+  <!-- Central Package Management (Directory.Packages.props): VersionOverride instead of Version, avoiding NU1008. -->
+  <ItemGroup Condition="'$(_CodeQualityEnabled)' == 'true' and '$(ManagePackageVersionsCentrally)' == 'true'">
+    <PackageReference Include="Roslynator.Analyzers" VersionOverride="$(CodeQualityRoslynatorVersion)" PrivateAssets="all" IncludeAssets="$(_CodeQualityAssets)"
+                      Condition="'@(PackageReference->AnyHaveMetadataValue('Identity', 'Roslynator.Analyzers'))' != 'true'" />
+    <PackageReference Include="SonarAnalyzer.CSharp" VersionOverride="$(CodeQualitySonarAnalyzerVersion)" PrivateAssets="all" IncludeAssets="$(_CodeQualityAssets)"
+                      Condition="'@(PackageReference->AnyHaveMetadataValue('Identity', 'SonarAnalyzer.CSharp'))' != 'true'" />
+    <PackageReference Include="StyleCop.Analyzers" VersionOverride="$(CodeQualityStyleCopVersion)" PrivateAssets="all" IncludeAssets="$(_CodeQualityAssets)"
+                      Condition="'@(PackageReference->AnyHaveMetadataValue('Identity', 'StyleCop.Analyzers'))' != 'true'" />
+    <PackageReference Include="Meziantou.Analyzer" VersionOverride="$(CodeQualityMeziantouVersion)" PrivateAssets="all" IncludeAssets="$(_CodeQualityAssets)"
+                      Condition="'@(PackageReference->AnyHaveMetadataValue('Identity', 'Meziantou.Analyzer'))' != 'true'" />
+  </ItemGroup>
+
+  <!-- Rule severities live in the solution's .editorconfig (the ".NET Code Quality Pack rules" block). -->
+</Project>

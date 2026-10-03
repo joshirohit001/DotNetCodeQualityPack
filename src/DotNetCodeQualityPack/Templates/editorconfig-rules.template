@@ -1,0 +1,63 @@
+# StyleCop: keep the layout and naming rules, turn off the noisiest ones
+
+# XML comment analysis is disabled (fires when GenerateDocumentationFile is off)
+dotnet_diagnostic.SA0001.severity = none
+# Prefix local calls with 'this.'
+dotnet_diagnostic.SA1101.severity = none
+# Using directives must be inside the namespace
+dotnet_diagnostic.SA1200.severity = none
+# Field names must not begin with an underscore (_camelCase is the usual .NET convention)
+dotnet_diagnostic.SA1309.severity = none
+# Trailing commas in multi-line initializers
+dotnet_diagnostic.SA1413.severity = none
+# Elements, partial elements and enumeration items must be documented
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1601.severity = none
+dotnet_diagnostic.SA1602.severity = none
+# Documentation text must end with a period
+dotnet_diagnostic.SA1629.severity = none
+# File must have a header
+dotnet_diagnostic.SA1633.severity = none
+# Do not use regions
+dotnet_diagnostic.SA1124.severity = suggestion
+# Parameter must not span multiple lines
+dotnet_diagnostic.SA1118.severity = suggestion
+# File may only contain a single type
+dotnet_diagnostic.SA1402.severity = suggestion
+# Parameter / return value documentation should have text
+dotnet_diagnostic.SA1614.severity = suggestion
+dotnet_diagnostic.SA1616.severity = suggestion
+# Property summary documentation must match accessors
+dotnet_diagnostic.SA1623.severity = suggestion
+
+# Meziantou
+
+# ConfigureAwait(false): right for libraries, noise in ASP.NET Core apps
+dotnet_diagnostic.MA0004.severity = suggestion
+# File name must match type name (already covered by SA1649)
+dotnet_diagnostic.MA0048.severity = none
+# Method is too long
+dotnet_diagnostic.MA0051.severity = suggestion
+
+# Roslynator
+
+# Add/remove ConfigureAwait(false)
+dotnet_diagnostic.RCS1090.severity = suggestion
+
+# SonarAnalyzer
+
+# TODO comments: track them, don't warn
+dotnet_diagnostic.S1135.severity = suggestion
+# Hard-coded credentials
+dotnet_diagnostic.S2068.severity = error
+# Weak SSL/TLS protocols
+dotnet_diagnostic.S4423.severity = error
+# Server certificate validation turned off
+dotnet_diagnostic.S4830.severity = error
+
+# .NET SDK analyzers
+
+# Review SQL queries for security vulnerabilities
+dotnet_diagnostic.CA2100.severity = warning
+# Do not disable certificate validation
+dotnet_diagnostic.CA5359.severity = error

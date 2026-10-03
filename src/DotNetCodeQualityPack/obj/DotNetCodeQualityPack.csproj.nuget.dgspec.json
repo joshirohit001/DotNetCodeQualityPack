@@ -1,0 +1,90 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\DotNetCodeQualityPack_v2.0.0_Generic\\DotNetCodeQualityPack\\src\\DotNetCodeQualityPack\\DotNetCodeQualityPack.csproj": {}
+  },
+  "projects": {
+    "D:\\DotNetCodeQualityPack_v2.0.0_Generic\\DotNetCodeQualityPack\\src\\DotNetCodeQualityPack\\DotNetCodeQualityPack.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\DotNetCodeQualityPack_v2.0.0_Generic\\DotNetCodeQualityPack\\src\\DotNetCodeQualityPack\\DotNetCodeQualityPack.csproj",
+        "projectName": "DotNetCodeQualityPack",
+        "projectPath": "D:\\DotNetCodeQualityPack_v2.0.0_Generic\\DotNetCodeQualityPack\\src\\DotNetCodeQualityPack\\DotNetCodeQualityPack.csproj",
+        "packagesPath": "C:\\Users\\Rohit Joshi\\.nuget\\packages\\",
+        "outputPath": "D:\\DotNetCodeQualityPack_v2.0.0_Generic\\DotNetCodeQualityPack\\src\\DotNetCodeQualityPack\\obj\\",
+        "projectStyle": "PackageReference",
+        "skipContentFileWrite": true,
+        "UsingMicrosoftNETSdk": false,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Rohit Joshi\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net48": {
+            "framework": "net48",
+            "projectReferences": {}
+          }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net48": {
+          "framework": "net48",
+          "dependencies": {
+            "Community.VisualStudio.Toolkit.17": {
+              "include": "Compile, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "target": "Package",
+              "version": "[17.0.551, )"
+            },
+            "Microsoft.VSSDK.BuildTools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.12.2069, )",
+              "generatePathProperty": true
+            },
+            "Microsoft.VisualStudio.LanguageServices": {
+              "include": "Compile, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "target": "Package",
+              "version": "[4.0.1, )"
+            },
+            "Nerdbank.Streams": {
+              "include": "Compile, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "target": "Package",
+              "version": "[2.7.74, )"
+            }
+          }
+        }
+      },
+      "runtimes": {
+        "win": {
+          "#import": []
+        },
+        "win-arm64": {
+          "#import": []
+        },
+        "win-x64": {
+          "#import": []
+        },
+        "win-x86": {
+          "#import": []
+        }
+      }
+    }
+  }
+}

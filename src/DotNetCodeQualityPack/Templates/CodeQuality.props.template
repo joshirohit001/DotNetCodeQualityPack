@@ -1,0 +1,31 @@
+<Project>
+  <!--
+    .NET Code Quality Pack - shared settings (imported from Directory.Build.props).
+
+    Applies to every C# project under this folder:
+      - SDK-style projects: .NET 5+ / .NET Core / .NET Standard / SDK-style .NET Framework
+      - classic .NET Framework projects that use PackageReference (or no packages yet)
+    Projects that still use packages.config are skipped; Tools > .NET Code Quality > Check Solution lists them.
+
+    Opt one project out:   <EnableCodeQualityAnalyzers>false</EnableCodeQualityAnalyzers> in its .csproj
+    Change versions:       edit the properties below (one place for the whole solution)
+    Change rule severity:  the ".NET Code Quality Pack rules" block in .editorconfig
+  -->
+
+  <PropertyGroup>
+    <EnableCodeQualityAnalyzers Condition="'$(EnableCodeQualityAnalyzers)' == ''">true</EnableCodeQualityAnalyzers>
+
+    <CodeQualityRoslynatorVersion Condition="'$(CodeQualityRoslynatorVersion)' == ''">4.15.0</CodeQualityRoslynatorVersion>
+    <CodeQualitySonarAnalyzerVersion Condition="'$(CodeQualitySonarAnalyzerVersion)' == ''">10.34.0.3385</CodeQualitySonarAnalyzerVersion>
+    <CodeQualityStyleCopVersion Condition="'$(CodeQualityStyleCopVersion)' == ''">1.2.0-beta.556</CodeQualityStyleCopVersion>
+    <CodeQualityMeziantouVersion Condition="'$(CodeQualityMeziantouVersion)' == ''">3.0.290</CodeQualityMeziantouVersion>
+
+    <!-- Run IDExxxx code-style rules on build too, not only in the editor. -->
+    <EnforceCodeStyleInBuild Condition="'$(EnforceCodeStyleInBuild)' == ''">true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <!-- Lets classic .NET Framework projects without packages.config restore the analyzers via PackageReference. -->
+  <PropertyGroup Condition="!Exists('$(MSBuildProjectDirectory)\packages.config')">
+    <RestoreProjectStyle Condition="'$(RestoreProjectStyle)' == ''">PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+</Project>

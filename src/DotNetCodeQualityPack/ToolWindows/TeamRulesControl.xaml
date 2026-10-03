@@ -1,0 +1,704 @@
+<UserControl x:Class="DotNetCodeQualityPack.ToolWindows.TeamRulesControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"
+             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+             xmlns:imaging="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.Imaging"
+             toolkit:Themes.UseVsTheme="True"
+             Background="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBackgroundKey}}"
+             Foreground="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowTextKey}}"
+             FontSize="12"
+             MinWidth="300">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+        <SolidColorBrush x:Key="AccentBrush" Color="#0E70C0" />
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#1C86DA" />
+        <SolidColorBrush x:Key="AiBrush" Color="#7C4DEB" />
+        <SolidColorBrush x:Key="AiHoverBrush" Color="#9168F0" />
+        <SolidColorBrush x:Key="TealBrush" Color="#149E9E" />
+        <SolidColorBrush x:Key="WarnBrush" Color="#D29922" />
+        <SolidColorBrush x:Key="InfoBrush" Color="#3794FF" />
+        <SolidColorBrush x:Key="OkBrush" Color="#2EA043" />
+        <SolidColorBrush x:Key="ErrBrush" Color="#E5534B" />
+        <SolidColorBrush x:Key="AddedLineBrush" Color="#382EA043" />
+        <SolidColorBrush x:Key="RemovedLineBrush" Color="#38E5534B" />
+        <SolidColorBrush x:Key="HighlightLineBrush" Color="#38D29922" />
+        <SolidColorBrush x:Key="SubtleFill" Color="#16808080" />
+        <SolidColorBrush x:Key="SubtleHover" Color="#28808080" />
+        <SolidColorBrush x:Key="ProblemFill" Color="#1FD29922" />
+        <FontFamily x:Key="CodeFont">Cascadia Mono, Consolas</FontFamily>
+        <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+        <Style x:Key="AccentButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+            <Setter Property="Tag" Value="{StaticResource AccentHoverBrush}" />
+            <Setter Property="Padding" Value="12,5" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AiButton" TargetType="Button" BasedOn="{StaticResource AccentButton}">
+            <Setter Property="Background" Value="{StaticResource AiBrush}" />
+            <Setter Property="Tag" Value="{StaticResource AiHoverBrush}" />
+        </Style>
+
+        <Style x:Key="SubtleButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowTextKey}}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource SubtleHover}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="IconButton" TargetType="Button" BasedOn="{StaticResource SubtleButton}">
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="Margin" Value="4,0,0,0" />
+        </Style>
+
+        <Style x:Key="LinkButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource InfoBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock x:Name="Txt" Text="{TemplateBinding Content}" />
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Txt" Property="TextDecorations" Value="Underline" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Txt" Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Segmented tab buttons -->
+        <Style x:Key="SegmentTab" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowTextKey}}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bd" CornerRadius="4" Padding="12,5" Margin="2" Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource SubtleHover}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentBrush}" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="Chip" TargetType="Border">
+            <Setter Property="CornerRadius" Value="11" />
+            <Setter Property="Padding" Value="9,2" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="{StaticResource SubtleFill}" />
+        </Style>
+
+        <Style x:Key="Pill" TargetType="Border">
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="Padding" Value="5,1" />
+            <Setter Property="Background" Value="{StaticResource SubtleFill}" />
+        </Style>
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}" />
+        </Style>
+
+        <Style x:Key="DiffRowContainer" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Group header used by both lists -->
+        <DataTemplate x:Key="GroupHeader">
+            <Border Padding="8,5" Margin="0,4,0,2" Background="{StaticResource SubtleFill}" CornerRadius="3">
+                <TextBlock FontWeight="SemiBold" TextTrimming="CharacterEllipsis">
+                    <Run Text="{Binding Name, Mode=OneWay}" /><Run Text="  ·  " Foreground="Gray" /><Run Text="{Binding ItemCount, Mode=OneWay}" Foreground="Gray" />
+                </TextBlock>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============ Header ============ -->
+        <Border Grid.Row="0" Padding="12,10" BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource IconButton}" Command="{Binding UndoCommand}" ToolTip="Undo the last applied fix">
+                        <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE7A7;" />
+                    </Button>
+                    <Button Style="{StaticResource IconButton}" Command="{Binding OpenRulesCommand}" ToolTip="Edit the rules file">
+                        <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE70F;" />
+                    </Button>
+                    <Button Style="{StaticResource IconButton}" Command="{Binding BrowseCommand}" ToolTip="Choose a different rules .md file">
+                        <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8E5;" />
+                    </Button>
+                    <Button Style="{StaticResource IconButton}" Command="{Binding ReloadCommand}" ToolTip="Reload the rules file">
+                        <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE72C;" />
+                    </Button>
+                </StackPanel>
+                <StackPanel VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="26" Height="26" CornerRadius="6" Background="{StaticResource TealBrush}" Margin="0,0,9,0">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8F1;" Foreground="White" FontSize="14"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="Team Rules" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding SubtitleText}" Opacity="0.7" Margin="35,1,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding SubtitleText}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ============ Summary chips ============ -->
+        <WrapPanel Grid.Row="1" Margin="12,10,12,2" Visibility="{Binding HasAnyRules, Converter={StaticResource BoolToVis}}">
+            <Border Style="{StaticResource Chip}" BorderBrush="{StaticResource WarnBrush}" ToolTip="Severity overrides">
+                <TextBlock><Run Text="{Binding OverrideCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource WarnBrush}" /><Run Text=" overrides" /></TextBlock>
+            </Border>
+            <Border Style="{StaticResource Chip}" BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}" ToolTip=".editorconfig settings">
+                <TextBlock><Run Text="{Binding SettingCount, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" settings" /></TextBlock>
+            </Border>
+            <Border Style="{StaticResource Chip}" BorderBrush="{StaticResource TealBrush}" ToolTip="Custom pattern rules">
+                <TextBlock><Run Text="{Binding CustomCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource TealBrush}" /><Run Text=" custom" /></TextBlock>
+            </Border>
+            <Border Style="{StaticResource Chip}" BorderBrush="{StaticResource AiBrush}" ToolTip="AI review guidelines">
+                <TextBlock><Run Text="{Binding GuidelineCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource AiBrush}" /><Run Text=" AI guidelines" /></TextBlock>
+            </Border>
+            <Border Style="{StaticResource Chip}" BorderBrush="{StaticResource AiBrush}" ToolTip="Reviewable rules from enabled .github/instructions files"
+                    Visibility="{Binding HasCopilot, Converter={StaticResource BoolToVis}}">
+                <TextBlock><Run Text="{Binding CopilotRuleCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource AiBrush}" /><Run Text=" Copilot rules" /></TextBlock>
+            </Border>
+            <Border Style="{StaticResource Chip}" BorderBrush="{Binding EditorConfigStatusBrush}" Visibility="{Binding HasRulesFile, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{Binding EditorConfigStatusText}" Foreground="{Binding EditorConfigStatusBrush}" FontWeight="SemiBold" />
+            </Border>
+        </WrapPanel>
+
+        <!-- ============ Problems in the rules file ============ -->
+        <Border Grid.Row="2" Margin="12,0,12,8" Padding="10,6" CornerRadius="4" Background="{StaticResource ProblemFill}"
+                Visibility="{Binding HasProblems, Converter={StaticResource BoolToVis}}">
+            <Expander>
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE7BA;" Foreground="{StaticResource WarnBrush}" Margin="0,2,8,0" />
+                        <TextBlock Text="{Binding ProblemsSummary}" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Expander.Header>
+                <ScrollViewer MaxHeight="110" VerticalScrollBarVisibility="Auto" Margin="22,4,0,0">
+                    <ItemsControl ItemsSource="{Binding Problems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="0,1" Opacity="0.9" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Expander>
+        </Border>
+
+        <!-- ============ Tabs ============ -->
+        <Border Grid.Row="3" Margin="12,0,12,8" CornerRadius="6" Background="{StaticResource SubtleFill}" HorizontalAlignment="Left"
+                Visibility="{Binding HasAnyRules, Converter={StaticResource BoolToVis}}">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton Style="{StaticResource SegmentTab}" GroupName="TeamRulesTabs" IsChecked="{Binding IsRulesTab}">
+                    <TextBlock><Run Text="Rules  " /><Run Text="{Binding RuleRowCount, Mode=OneWay}" FontWeight="SemiBold" /></TextBlock>
+                </RadioButton>
+                <RadioButton Style="{StaticResource SegmentTab}" GroupName="TeamRulesTabs" IsChecked="{Binding IsFindingsTab}">
+                    <TextBlock><Run Text="Findings  " /><Run Text="{Binding FindingCount, Mode=OneWay}" FontWeight="SemiBold" /></TextBlock>
+                </RadioButton>
+            </StackPanel>
+        </Border>
+
+        <!-- ============ Content ============ -->
+        <Grid Grid.Row="4">
+
+            <!-- No rules file -->
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="340" Margin="24"
+                        Visibility="{Binding ShowNoRulesState, Converter={StaticResource BoolToVis}}">
+                <Border Width="64" Height="64" CornerRadius="32" Background="{StaticResource SubtleFill}" HorizontalAlignment="Center">
+                    <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8F1;" FontSize="28" Foreground="{StaticResource TealBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="{Binding NoRulesTitle}" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,6" />
+                <TextBlock Text="{Binding NoRulesText}" Opacity="0.75" TextAlignment="Center" TextWrapping="Wrap" LineHeight="18" />
+                <WrapPanel HorizontalAlignment="Center" Margin="0,18,0,0" Visibility="{Binding HasSolution, Converter={StaticResource BoolToVis}}">
+                    <Button Style="{StaticResource AccentButton}" Command="{Binding NewRulesCommand}" Padding="14,7">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE710;" Margin="0,1,8,0" />
+                            <TextBlock Text="Create from template" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SubtleButton}" Command="{Binding BrowseCommand}" Padding="14,7">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8E5;" Margin="0,1,8,0" />
+                            <TextBlock Text="Choose a .md file…" />
+                        </StackPanel>
+                    </Button>
+                </WrapPanel>
+            </StackPanel>
+
+            <!-- Rules tab -->
+            <ListBox Margin="12,0,12,8" ItemsSource="{Binding RulesView}"
+                     Visibility="{Binding ShowRulesContent, Converter={StaticResource BoolToVis}}"
+                     BorderThickness="1" BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}"
+                     HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     VirtualizingPanel.IsVirtualizingWhenGrouping="True" VirtualizingPanel.ScrollUnit="Pixel"
+                     MouseDoubleClick="OnRuleDoubleClick" ToolTip="Double-click a rule to open it in its .md file">
+                <ListBox.GroupStyle>
+                    <GroupStyle HeaderTemplate="{StaticResource GroupHeader}" />
+                </ListBox.GroupStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="8,3,2,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource Pill}" VerticalAlignment="Top" Margin="0,1,0,0" MinWidth="58">
+                                <TextBlock Text="{Binding Id}" FontFamily="{StaticResource CodeFont}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                                           MaxWidth="220" ToolTip="{Binding Id}" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding Detail}" Opacity="0.6" FontSize="11" FontFamily="{StaticResource CodeFont}" TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding Detail}" Visibility="{Binding HasDetail, Converter={StaticResource BoolToVis}}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="6,1,0,0">
+                                <TextBlock Text="{Binding SourceLineLabel}" Opacity="0.4" FontSize="10.5" VerticalAlignment="Center" Margin="0,0,6,0"
+                                           ToolTip="Line in the rules file" />
+                                <Border CornerRadius="8" Padding="7,1" Background="{Binding TagBrush}">
+                                    <TextBlock Text="{Binding Tag}" Foreground="White" FontSize="10.5" FontWeight="SemiBold" />
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- Findings tab -->
+            <Grid Visibility="{Binding ShowFindingsContent, Converter={StaticResource BoolToVis}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" MinHeight="100" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="1.2*" MinHeight="130" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <DockPanel Grid.Row="0" Margin="14,0,14,4">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource LinkButton}" Content="Clear" Command="{Binding ClearFindingsCommand}" />
+                    <TextBlock Text="{Binding FindingsSummary}" Opacity="0.75" TextTrimming="CharacterEllipsis" />
+                </DockPanel>
+
+                <Grid Grid.Row="1" Margin="12,0,12,0">
+                    <ListBox ItemsSource="{Binding FindingsView}" SelectedItem="{Binding SelectedFinding}"
+                             BorderThickness="1" BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}"
+                             HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             VirtualizingPanel.IsVirtualizingWhenGrouping="True" VirtualizingPanel.ScrollUnit="Pixel"
+                             MouseDoubleClick="OnFindingDoubleClick">
+                        <ListBox.GroupStyle>
+                            <GroupStyle HeaderTemplate="{StaticResource GroupHeader}" />
+                        </ListBox.GroupStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="6,3,2,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <imaging:CrispImage Moniker="{Binding Moniker}" Width="14" Height="14" VerticalAlignment="Top" Margin="0,3,6,0" />
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                                        <Border CornerRadius="3" Padding="5,0" Background="{Binding SourceBrush}" HorizontalAlignment="Left">
+                                            <TextBlock Text="{Binding SourceLabel}" Foreground="White" FontSize="10" FontWeight="SemiBold" />
+                                        </Border>
+                                        <TextBlock Text="{Binding LineLabel}" FontFamily="{StaticResource CodeFont}" FontSize="11" Opacity="0.7" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Margin="8,0,0,0">
+                                        <TextBlock TextTrimming="CharacterEllipsis" ToolTip="{Binding Title}">
+                                            <Run Text="{Binding RuleId, Mode=OneWay}" FontFamily="{StaticResource CodeFont}" FontWeight="SemiBold" /><Run Text="  " /><Run Text="{Binding Message, Mode=OneWay}" />
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Code}" FontFamily="{StaticResource CodeFont}" Opacity="0.65" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                    <Border Grid.Column="3" CornerRadius="8" Padding="7,1" Margin="6,1,0,0" Background="{Binding FixBrush}" VerticalAlignment="Top">
+                                        <TextBlock Text="{Binding FixTag}" Foreground="White" FontSize="10.5" FontWeight="SemiBold" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="300" IsHitTestVisible="False"
+                                Visibility="{Binding ShowFindingsEmpty, Converter={StaticResource BoolToVis}}">
+                        <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE9D9;" FontSize="24" Opacity="0.5" HorizontalAlignment="Center" />
+                        <TextBlock Text="No findings yet" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,8,0,4" />
+                        <TextBlock Text="Click 'Check custom rules' to scan the solution, or open a file and click 'AI review active file'." Opacity="0.7"
+                                   TextWrapping="Wrap" TextAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+
+                <GridSplitter Grid.Row="2" Height="8" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="Transparent"
+                              ResizeBehavior="PreviousAndNext" ResizeDirection="Rows" ToolTip="Drag to resize" />
+
+                <!-- Preview -->
+                <Border Grid.Row="3" Style="{StaticResource Card}" Margin="12,0,12,8">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Border Padding="10,8" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Right" Margin="8,0,0,0" VerticalAlignment="Center" FontFamily="{StaticResource CodeFont}"
+                                           Visibility="{Binding HasDiffStats, Converter={StaticResource BoolToVis}}">
+                                    <Run Text="{Binding AddedText, Mode=OneWay}" Foreground="{StaticResource OkBrush}" FontWeight="SemiBold" /><Run Text="  " /><Run Text="{Binding RemovedText, Mode=OneWay}" Foreground="{StaticResource ErrBrush}" FontWeight="SemiBold" />
+                                </TextBlock>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding PreviewTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding PreviewTitle}" />
+                                    <TextBlock Text="{Binding PreviewSubtitle}" Opacity="0.7" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+
+                        <Border Grid.Row="1" Padding="10,6" Background="{StaticResource SubtleFill}"
+                                Visibility="{Binding HasPreviewHint, Converter={StaticResource BoolToVis}}">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Left" FontFamily="{StaticResource IconFont}" Text="&#xE946;" Margin="0,2,8,0" Opacity="0.7" />
+                                <TextBlock Text="{Binding PreviewHint}" TextWrapping="Wrap" Opacity="0.9" />
+                            </DockPanel>
+                        </Border>
+
+                        <Grid Grid.Row="2">
+                            <ListBox ItemsSource="{Binding PreviewLines}" BorderThickness="0" Background="Transparent"
+                                     FontFamily="{StaticResource CodeFont}" FontSize="12"
+                                     ItemContainerStyle="{StaticResource DiffRowContainer}"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                     VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.ScrollUnit="Pixel">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid x:Name="Line" Background="Transparent">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="38" />
+                                                <ColumnDefinition Width="38" />
+                                                <ColumnDefinition Width="16" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding OldNumber}" Opacity="0.45" TextAlignment="Right" Margin="0,0,6,0" />
+                                            <TextBlock Grid.Column="1" Text="{Binding NewNumber}" Opacity="0.45" TextAlignment="Right" Margin="0,0,6,0" />
+                                            <TextBlock x:Name="Sign" Grid.Column="2" Text="{Binding Sign}" FontWeight="Bold" Opacity="0.8" />
+                                            <TextBlock x:Name="Code" Grid.Column="3" Text="{Binding Text}" Padding="0,1,12,1" />
+                                        </Grid>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Kind}" Value="Removed">
+                                                <Setter TargetName="Line" Property="Background" Value="{StaticResource RemovedLineBrush}" />
+                                                <Setter TargetName="Sign" Property="Foreground" Value="{StaticResource ErrBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Kind}" Value="Added">
+                                                <Setter TargetName="Line" Property="Background" Value="{StaticResource AddedLineBrush}" />
+                                                <Setter TargetName="Sign" Property="Foreground" Value="{StaticResource OkBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Kind}" Value="Highlight">
+                                                <Setter TargetName="Line" Property="Background" Value="{StaticResource HighlightLineBrush}" />
+                                                <Setter TargetName="Sign" Property="Foreground" Value="{StaticResource WarnBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Kind}" Value="Gap">
+                                                <Setter TargetName="Code" Property="Opacity" Value="0.5" />
+                                                <Setter TargetName="Code" Property="FontStyle" Value="Italic" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Kind}" Value="File">
+                                                <Setter TargetName="Line" Property="Background" Value="{StaticResource SubtleFill}" />
+                                                <Setter TargetName="Line" Property="Margin" Value="0,6,0,2" />
+                                                <Setter TargetName="Code" Property="FontFamily" Value="Segoe UI" />
+                                                <Setter TargetName="Code" Property="FontWeight" Value="SemiBold" />
+                                                <Setter TargetName="Code" Property="Padding" Value="0,3,12,3" />
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <ProgressBar IsIndeterminate="True" Height="2" VerticalAlignment="Top" BorderThickness="0" Foreground="{StaticResource AccentBrush}"
+                                         Visibility="{Binding IsPreviewLoading, Converter={StaticResource BoolToVis}}" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Finding actions -->
+                <WrapPanel Grid.Row="4" Margin="12,0,12,2">
+                    <Button Style="{StaticResource AccentButton}" Command="{Binding ApplyFixCommand}" ToolTip="Apply the change shown in the preview">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8FB;" Margin="0,1,6,0" />
+                            <TextBlock Text="{Binding ApplyText}" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SubtleButton}" Command="{Binding FixAllRuleCommand}" ToolTip="Preview this rule's fix everywhere it was found">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8FD;" Margin="0,1,6,0" />
+                            <TextBlock Text="Fix all for this rule…" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SubtleButton}" Command="{Binding GoToCodeCommand}" ToolTip="Open the file at this line (or double-click the finding)">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE943;" Margin="0,1,6,0" />
+                            <TextBlock Text="Go to code" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SubtleButton}" Command="{Binding OpenRuleCommand}" ToolTip="Open the .md file at the line where this rule is written">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8A5;" Margin="0,1,6,0" />
+                            <TextBlock Text="Open rule" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SubtleButton}" Command="{Binding DismissCommand}" ToolTip="Remove this finding from the list">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE711;" Margin="0,1,6,0" />
+                            <TextBlock Text="Dismiss" />
+                        </StackPanel>
+                    </Button>
+                </WrapPanel>
+            </Grid>
+        </Grid>
+
+        <!-- ============ Run: .editorconfig, custom rules, AI ============ -->
+        <Border Grid.Row="5" Margin="12,0,12,8" Padding="10,10,4,4" Style="{StaticResource Card}"
+                Visibility="{Binding HasAnyRules, Converter={StaticResource BoolToVis}}">
+            <StackPanel>
+                <WrapPanel>
+                    <Button Style="{StaticResource AccentButton}" Command="{Binding ApplyEditorConfigCommand}"
+                            ToolTip="Write the severity overrides and settings into the solution's .editorconfig">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE74E;" Margin="0,1,6,0" />
+                            <TextBlock Text="Apply to .editorconfig" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SubtleButton}" Command="{Binding CheckCustomCommand}" ToolTip="Run the custom pattern rules over the whole solution">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE721;" Margin="0,1,6,0" />
+                            <TextBlock Text="Check custom rules" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource LinkButton}" Content="Remove from .editorconfig" Command="{Binding RemoveEditorConfigCommand}"
+                            VerticalAlignment="Center" Margin="4,0,0,6" Visibility="{Binding HasRulesFile, Converter={StaticResource BoolToVis}}" />
+                    <Button Style="{StaticResource LinkButton}" Content="Create CodeQualityRules.md for overrides and custom rules…" Command="{Binding NewRulesCommand}"
+                            VerticalAlignment="Center" Margin="4,0,0,6" Visibility="{Binding ShowCreateRulesLink, Converter={StaticResource BoolToVis}}" />
+                </WrapPanel>
+
+                <Border Height="1" Margin="0,4,6,10" Background="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}" />
+
+                <DockPanel Margin="0,0,6,6">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Command="{Binding ToggleAiSettingsCommand}" ToolTip="AI settings">
+                        <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE713;" />
+                    </Button>
+                    <Button DockPanel.Dock="Right" Style="{StaticResource AiButton}" Command="{Binding AiReviewCommand}" Margin="6,0,0,0"
+                            ToolTip="Review the file open in the editor against the AI guidelines and the matching Copilot instruction files">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE945;" Margin="0,1,6,0" />
+                            <TextBlock Text="AI review active file" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Button>
+                    <ComboBox ItemsSource="{Binding Models}" SelectedItem="{Binding SelectedModel}" DisplayMemberPath="Name"
+                              VerticalContentAlignment="Center" MinWidth="140" ToolTip="Model used for the AI review (OpenAI, Anthropic or Ollama)" />
+                </DockPanel>
+                <TextBlock Text="{Binding AiStatusText}" Opacity="0.65" FontSize="11" Margin="0,0,6,6" TextTrimming="CharacterEllipsis" ToolTip="{Binding AiStatusText}" />
+
+                <!-- Token usage -->
+                <Expander Margin="0,0,6,6" IsExpanded="{Binding ShowUsageDetails}"
+                          ToolTip="Tokens sent to and received from the AI model, as reported by the model server">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE9D2;" Foreground="{StaticResource AiBrush}" Margin="0,2,6,0" />
+                            <TextBlock Text="{Binding UsageHeader}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                    </Expander.Header>
+                    <Border Margin="0,6,0,0" Padding="10,8" CornerRadius="4" Background="{StaticResource SubtleFill}">
+                        <StackPanel Grid.IsSharedSizeScope="True">
+                            <Grid Margin="0,0,0,4" Opacity="0.6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" MinWidth="110" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="UsageIn" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="UsageOut" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="UsageTotal" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="UsageReq" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="1" Text="Input" FontSize="11" TextAlignment="Right" Margin="12,0,0,0" />
+                                <TextBlock Grid.Column="2" Text="Output" FontSize="11" TextAlignment="Right" Margin="12,0,0,0" />
+                                <TextBlock Grid.Column="3" Text="Total" FontSize="11" TextAlignment="Right" Margin="12,0,0,0" />
+                                <TextBlock Grid.Column="4" Text="Requests" FontSize="11" TextAlignment="Right" Margin="12,0,0,0" />
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding UsageRows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,3" ToolTip="{Binding ToolTip}" Background="Transparent">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" MinWidth="110" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="UsageIn" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="UsageOut" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="UsageTotal" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="UsageReq" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Label}" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Detail}" FontSize="10.5" Opacity="0.6" TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding Input}" FontFamily="{StaticResource CodeFont}" TextAlignment="Right" Margin="12,0,0,0" />
+                                            <TextBlock Grid.Column="2" Text="{Binding Output}" FontFamily="{StaticResource CodeFont}" TextAlignment="Right" Margin="12,0,0,0" />
+                                            <TextBlock Grid.Column="3" Text="{Binding Total}" FontFamily="{StaticResource CodeFont}" FontWeight="SemiBold" TextAlignment="Right" Margin="12,0,0,0" />
+                                            <TextBlock Grid.Column="4" Text="{Binding Requests}" FontFamily="{StaticResource CodeFont}" Opacity="0.7" TextAlignment="Right" Margin="12,0,0,0" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="{Binding UsageByModelText}" Opacity="0.7" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="{Binding EstimatedUsageText}" Opacity="0.7" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"
+                                       Visibility="{Binding HasEstimatedUsage, Converter={StaticResource BoolToVis}}" />
+                            <DockPanel Margin="0,6,0,0">
+                                <Button DockPanel.Dock="Right" Style="{StaticResource LinkButton}" Content="Reset counters" Command="{Binding ResetUsageCommand}" FontSize="11" />
+                                <TextBlock Text="Stored for your Windows account in %LOCALAPPDATA%\DotNetCodeQualityPack\settings.json (counts only)." Opacity="0.55"
+                                           FontSize="10.5" TextWrapping="Wrap" />
+                            </DockPanel>
+                        </StackPanel>
+                    </Border>
+                </Expander>
+
+                <!-- AI settings -->
+                <Border Margin="0,0,6,6" Padding="10,8" CornerRadius="4" Background="{StaticResource SubtleFill}"
+                        Visibility="{Binding ShowAiSettings, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <!-- AI providers (shared with Code Compass) -->
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                                <Button Style="{StaticResource SubtleButton}" Content="Load models" Command="{Binding LoadModelsCommand}" Margin="0,0,6,0" Padding="10,3"
+                                        ToolTip="Reload the models of the providers you use" />
+                                <Button Style="{StaticResource AccentButton}" Content="AI providers…" Click="OnConfigureProviders" Padding="10,3"
+                                        ToolTip="OpenAI, Anthropic or Ollama: your own API URL, API key and model names" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="AI providers" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding ProvidersSummary}" Opacity="0.7" FontSize="11" TextWrapping="Wrap" Margin="0,2,8,8" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <Border Padding="8,6" CornerRadius="4" Margin="0,2,0,0" Background="{StaticResource ProblemFill}"
+                                Visibility="{Binding IsRemoteModel, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="{Binding AiPrivacyText}" TextWrapping="Wrap" FontSize="11" />
+                        </Border>
+                        <TextBlock Text="{Binding AiPrivacyText}" TextWrapping="Wrap" Opacity="0.7" FontSize="11" Margin="0,2,0,0"
+                                   Visibility="{Binding IsLocalModel, Converter={StaticResource BoolToVis}}" />
+
+                        <!-- Copilot instruction files -->
+                        <StackPanel Margin="0,10,0,0" Visibility="{Binding HasCopilot, Converter={StaticResource BoolToVis}}">
+                            <CheckBox Content="Use GitHub Copilot instruction files (.github/instructions)" IsChecked="{Binding UseCopilotInstructions}" FontWeight="SemiBold" />
+                            <TextBlock Text="Only files whose applyTo matches the reviewed file are used. Untick a file to leave it out of AI review." Opacity="0.7" FontSize="11"
+                                       TextWrapping="Wrap" Margin="20,2,0,4" />
+                            <ItemsControl ItemsSource="{Binding InstructionFiles}" Margin="20,0,0,0" IsEnabled="{Binding UseCopilotInstructions}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Label}" IsChecked="{Binding IsEnabled}" ToolTip="{Binding ToolTip}" Margin="0,2,14,2" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- ============ Busy ============ -->
+        <Border Grid.Row="6" Margin="12,0,12,8" Padding="10,6" CornerRadius="4" Background="{StaticResource SubtleFill}"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Style="{StaticResource SubtleButton}" Margin="8,0,0,0" Padding="8,2" Content="Cancel" Command="{Binding CancelCommand}" />
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding BusyText}" TextTrimming="CharacterEllipsis" />
+                    <ProgressBar IsIndeterminate="True" Height="3" Margin="0,6,0,0" Foreground="{StaticResource AccentBrush}" BorderThickness="0" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ============ Status ============ -->
+        <Border Grid.Row="7" Padding="12,6" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}">
+            <TextBlock Text="{Binding StatusText}" Opacity="0.8" TextWrapping="Wrap" MaxHeight="48" TextTrimming="CharacterEllipsis" ToolTip="{Binding StatusText}" />
+        </Border>
+    </Grid>
+</UserControl>

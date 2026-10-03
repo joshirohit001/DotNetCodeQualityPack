@@ -1,0 +1,29 @@
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
+  <Metadata>
+    <Identity Id="DotNetCodeQualityPack.01c81d63-d8c4-41e2-863b-20e85b30b3b1" Version="2.0.0" Language="en-US" Publisher="Rohit Joshi" />
+    <DisplayName>.NET Code Quality Pack</DisplayName>
+    <Description xml:space="preserve">One install for .NET code quality in Visual Studio 2022. Installs Roslynator, SonarQube for IDE, CodeMaid and Fine Code Coverage, and adds Tools &gt; .NET Code Quality to set up shared analyzers (Roslynator, SonarAnalyzer, StyleCop, Meziantou) and rule severities for any solution: .NET, .NET Core, .NET Standard and .NET Framework projects.</Description>
+    <Tags>code quality, analyzers, roslynator, sonarqube, stylecop, codemaid, coverage, .net framework, .net core</Tags>
+  </Metadata>
+  <Installation>
+    <!--
+      VS 2022 only: the bundled Roslynator 2022 and Fine Code Coverage 2022 extensions don't install on VS 2026 (18.x).
+      Fine Code Coverage 2022 itself requires VS 2022 17.13 or later.
+    -->
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,18.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,18.0)">
+      <ProductArchitecture>arm64</ProductArchitecture>
+    </InstallationTarget>
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" Version="[4.5,)" />
+  </Dependencies>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,18.0)" DisplayName="Visual Studio core editor" />
+  </Prerequisites>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.VsPackage" Path="DotNetCodeQualityPack.pkgdef" />
+  </Assets>
+</PackageManifest>

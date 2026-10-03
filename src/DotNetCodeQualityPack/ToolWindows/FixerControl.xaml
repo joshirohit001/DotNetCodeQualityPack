@@ -1,0 +1,491 @@
+<UserControl x:Class="DotNetCodeQualityPack.ToolWindows.FixerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"
+             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+             xmlns:imaging="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.Imaging"
+             toolkit:Themes.UseVsTheme="True"
+             Background="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBackgroundKey}}"
+             Foreground="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowTextKey}}"
+             FontSize="12"
+             MinWidth="300">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+        <SolidColorBrush x:Key="AccentBrush" Color="#0E70C0" />
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#1C86DA" />
+        <SolidColorBrush x:Key="WarnBrush" Color="#D29922" />
+        <SolidColorBrush x:Key="InfoBrush" Color="#3794FF" />
+        <SolidColorBrush x:Key="OkBrush" Color="#2EA043" />
+        <SolidColorBrush x:Key="ErrBrush" Color="#E5534B" />
+        <SolidColorBrush x:Key="AddedLineBrush" Color="#382EA043" />
+        <SolidColorBrush x:Key="RemovedLineBrush" Color="#38E5534B" />
+        <SolidColorBrush x:Key="HighlightLineBrush" Color="#38D29922" />
+        <SolidColorBrush x:Key="SubtleFill" Color="#16808080" />
+        <SolidColorBrush x:Key="SubtleHover" Color="#28808080" />
+        <FontFamily x:Key="CodeFont">Cascadia Mono, Consolas</FontFamily>
+        <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+        <!-- Blue call-to-action button -->
+        <Style x:Key="AccentButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+            <Setter Property="Padding" Value="12,5" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Outlined secondary button that follows the VS theme -->
+        <Style x:Key="SubtleButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowTextKey}}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource SubtleHover}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="IconButton" TargetType="Button" BasedOn="{StaticResource SubtleButton}">
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="Margin" Value="0" />
+        </Style>
+
+        <Style x:Key="LinkButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource InfoBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock x:Name="Txt" Text="{TemplateBinding Content}" />
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Txt" Property="TextDecorations" Value="Underline" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Txt" Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="Chip" TargetType="Border">
+            <Setter Property="CornerRadius" Value="11" />
+            <Setter Property="Padding" Value="9,2" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="{StaticResource SubtleFill}" />
+        </Style>
+
+        <Style x:Key="Pill" TargetType="Border">
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="Padding" Value="5,1" />
+            <Setter Property="Background" Value="{StaticResource SubtleFill}" />
+        </Style>
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}" />
+        </Style>
+
+        <!-- Diff rows: no selection highlight, full-width background -->
+        <Style x:Key="DiffRowContainer" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============ Header ============ -->
+        <Border Grid.Row="0" Padding="12,10" BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource IconButton}" Command="{Binding UndoCommand}" ToolTip="Undo the last applied change">
+                        <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE7A7;" />
+                    </Button>
+                    <Button Style="{StaticResource AccentButton}" Command="{Binding ScanCommand}" Margin="6,0,0,0" ToolTip="Analyze every C# project in the solution">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE72C;" Margin="0,1,6,0" />
+                            <TextBlock Text="{Binding ScanButtonText}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <StackPanel VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="26" Height="26" CornerRadius="6" Background="{StaticResource AccentBrush}" Margin="0,0,9,0">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE83D;" Foreground="White" FontSize="14"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="Code Quality Fixer" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding SubtitleText}" Opacity="0.7" Margin="35,1,0,0" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ============ Summary chips ============ -->
+        <WrapPanel Grid.Row="1" Margin="12,10,12,2" Visibility="{Binding HasScanned, Converter={StaticResource BoolToVis}}">
+            <Border Style="{StaticResource Chip}" BorderBrush="{StaticResource ErrBrush}" Visibility="{Binding HasErrors, Converter={StaticResource BoolToVis}}">
+                <TextBlock><Run Text="{Binding ErrorCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource ErrBrush}" /><Run Text=" errors" /></TextBlock>
+            </Border>
+            <Border Style="{StaticResource Chip}" BorderBrush="{StaticResource WarnBrush}">
+                <TextBlock><Run Text="{Binding WarningCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource WarnBrush}" /><Run Text=" warnings" /></TextBlock>
+            </Border>
+            <Border Style="{StaticResource Chip}" BorderBrush="{StaticResource InfoBrush}">
+                <TextBlock><Run Text="{Binding MessageCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource InfoBrush}" /><Run Text=" messages" /></TextBlock>
+            </Border>
+            <Border Style="{StaticResource Chip}" BorderBrush="{StaticResource OkBrush}">
+                <TextBlock><Run Text="{Binding FixableCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource OkBrush}" /><Run Text=" auto-fixable" /></TextBlock>
+            </Border>
+            <Border Style="{StaticResource Chip}" BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}">
+                <TextBlock><Run Text="{Binding FileCount, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" files" /></TextBlock>
+            </Border>
+            <Border Style="{StaticResource Chip}" BorderBrush="{StaticResource OkBrush}" Background="#1A2EA043"
+                    Visibility="{Binding HasFixedThisSession, Converter={StaticResource BoolToVis}}">
+                <TextBlock><Run FontFamily="{StaticResource IconFont}" Text="&#xE73E;" Foreground="{StaticResource OkBrush}" /><Run Text=" " /><Run Text="{Binding FixedThisSession, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" fixed" /></TextBlock>
+            </Border>
+        </WrapPanel>
+
+        <!-- ============ Filters ============ -->
+        <Grid Grid.Row="2" Margin="12,2,12,8" Visibility="{Binding HasScanned, Converter={StaticResource BoolToVis}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="90" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid>
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=300}" Padding="24,3,4,3" VerticalContentAlignment="Center" />
+                <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE721;" IsHitTestVisible="False" Margin="8,0,0,0"
+                           VerticalAlignment="Center" Opacity="0.6" />
+                <TextBlock Text="Filter by rule, message or file" IsHitTestVisible="False" Margin="27,0,0,0" VerticalAlignment="Center"
+                           Opacity="0.5" TextTrimming="CharacterEllipsis"
+                           Visibility="{Binding ShowSearchPlaceholder, Converter={StaticResource BoolToVis}}" />
+            </Grid>
+            <ComboBox Grid.Column="1" Margin="6,0,0,0" MinWidth="120" SelectedIndex="{Binding SeverityFilterIndex}" VerticalContentAlignment="Center">
+                <ComboBoxItem Content="All severities" />
+                <ComboBoxItem Content="Errors &amp; warnings" />
+                <ComboBoxItem Content="Messages only" />
+            </ComboBox>
+            <CheckBox Grid.Column="2" Margin="8,0,0,0" VerticalAlignment="Center" Content="Auto-fixable" IsChecked="{Binding FixableOnly}" />
+        </Grid>
+
+        <!-- ============ Busy bar ============ -->
+        <Border Grid.Row="3" Margin="12,0,12,8" Padding="10,6" CornerRadius="4" Background="{StaticResource SubtleFill}"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Style="{StaticResource SubtleButton}" Margin="8,0,0,0" Padding="8,2" Content="Cancel" Command="{Binding CancelCommand}" />
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding BusyText}" TextTrimming="CharacterEllipsis" />
+                    <ProgressBar IsIndeterminate="True" Height="3" Margin="0,6,0,0" Foreground="{StaticResource AccentBrush}" BorderThickness="0" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ============ Content ============ -->
+        <Grid Grid.Row="4">
+
+            <!-- Welcome / empty state -->
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="340" Margin="24"
+                        Visibility="{Binding ShowEmptyState, Converter={StaticResource BoolToVis}}">
+                <Border Width="64" Height="64" CornerRadius="32" Background="{StaticResource SubtleFill}" HorizontalAlignment="Center">
+                    <TextBlock FontFamily="{StaticResource IconFont}" Text="{Binding EmptyGlyph}" FontSize="28" Foreground="{StaticResource AccentBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="{Binding EmptyTitle}" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" TextAlignment="Center"
+                           TextWrapping="Wrap" Margin="0,14,0,6" />
+                <TextBlock Text="{Binding EmptyText}" Opacity="0.75" TextAlignment="Center" TextWrapping="Wrap" LineHeight="18" />
+                <Button Style="{StaticResource AccentButton}" Command="{Binding ScanCommand}" HorizontalAlignment="Center" Margin="0,18,0,0" Padding="18,7"
+                        Visibility="{Binding ShowEmptyScanButton, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE72C;" Margin="0,1,8,0" />
+                        <TextBlock Text="Scan solution" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <!-- Pages -->
+            <Grid Visibility="{Binding ShowPages, Converter={StaticResource BoolToVis}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" MinHeight="110" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="1.3*" MinHeight="140" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Page navigator -->
+                <Border Grid.Row="0" Style="{StaticResource Card}" Margin="12,0,12,8" Padding="6">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button Style="{StaticResource IconButton}" Command="{Binding PrevPageCommand}" ToolTip="Previous page (file)" VerticalAlignment="Center">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE76B;" />
+                        </Button>
+                        <StackPanel Grid.Column="1" Margin="10,0">
+                            <TextBlock Text="{Binding PageLabel}" FontSize="10" FontWeight="SemiBold" Opacity="0.6" />
+                            <TextBlock Text="{Binding CurrentPage.FileName}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding CurrentPage.FilePath}" />
+                            <TextBlock Text="{Binding CurrentPage.Summary}" Opacity="0.7" TextTrimming="CharacterEllipsis" ToolTip="{Binding CurrentPage.Summary}" />
+                        </StackPanel>
+                        <Button Grid.Column="2" Style="{StaticResource IconButton}" Command="{Binding NextPageCommand}" ToolTip="Next page (file)" VerticalAlignment="Center">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE76C;" />
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Issues on this page, grouped by rule -->
+                <DockPanel Grid.Row="1" Margin="12,0,12,0">
+                    <DockPanel DockPanel.Dock="Top" Margin="2,0,2,4">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Style="{StaticResource LinkButton}" Content="Tick all" Command="{Binding TickAllCommand}" />
+                            <TextBlock Text="  ·  " Opacity="0.5" />
+                            <Button Style="{StaticResource LinkButton}" Content="None" Command="{Binding TickNoneCommand}" />
+                        </StackPanel>
+                        <TextBlock Text="Issues on this page" FontWeight="SemiBold" Opacity="0.8" />
+                    </DockPanel>
+                    <ListBox ItemsSource="{Binding IssuesView}" SelectedItem="{Binding SelectedIssue}"
+                             BorderThickness="1" BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}"
+                             HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             VirtualizingPanel.IsVirtualizingWhenGrouping="True" VirtualizingPanel.ScrollUnit="Pixel"
+                             MouseDoubleClick="OnIssueDoubleClick">
+                        <ListBox.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="6,5" Margin="0,2,0,0" Background="{StaticResource SubtleFill}" CornerRadius="3">
+                                            <DockPanel>
+                                                <CheckBox DockPanel.Dock="Left" VerticalAlignment="Center" IsChecked="{Binding Name.IsChecked}"
+                                                          IsEnabled="{Binding Name.IsFixable}" ToolTip="Include this rule in 'Fix ticked on page'" />
+                                                <imaging:CrispImage DockPanel.Dock="Left" Moniker="{Binding Name.Moniker}" Width="14" Height="14" Margin="4,0,6,0" />
+                                                <Border DockPanel.Dock="Right" CornerRadius="8" Padding="7,1" Margin="6,0,0,0" Background="{Binding Name.TagBrush}" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name.TagText}" Foreground="White" FontSize="10.5" FontWeight="SemiBold" />
+                                                </Border>
+                                                <Border DockPanel.Dock="Left" Style="{StaticResource Pill}" Margin="0,0,7,0" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name.Id}" FontFamily="{StaticResource CodeFont}" FontWeight="SemiBold" />
+                                                </Border>
+                                                <TextBlock Text="{Binding Name.TitleWithCount}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                                                           ToolTip="{Binding Name.Title}" />
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
+                        </ListBox.GroupStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid x:Name="Row" Margin="22,3,2,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource Pill}" VerticalAlignment="Top" Margin="0,1,0,0">
+                                        <TextBlock Text="{Binding LineLabel}" FontFamily="{StaticResource CodeFont}" FontSize="11" Opacity="0.85" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                        <TextBlock Text="{Binding Code}" FontFamily="{StaticResource CodeFont}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Message}" Opacity="0.65" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Message}" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" FontFamily="{StaticResource IconFont}" Text="{Binding StateGlyph}" Foreground="{Binding StateBrush}"
+                                               Margin="6,0,0,0" VerticalAlignment="Center" ToolTip="Skipped" />
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsSkipped}" Value="True">
+                                        <Setter TargetName="Row" Property="Opacity" Value="0.5" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+
+                <GridSplitter Grid.Row="2" Height="8" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="Transparent"
+                              ResizeBehavior="PreviousAndNext" ResizeDirection="Rows" ToolTip="Drag to resize" />
+
+                <!-- Preview -->
+                <Border Grid.Row="3" Style="{StaticResource Card}" Margin="12,0,12,8">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Border Padding="10,8" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Right" Margin="8,0,0,0" VerticalAlignment="Center" FontFamily="{StaticResource CodeFont}"
+                                           Visibility="{Binding HasDiffStats, Converter={StaticResource BoolToVis}}">
+                                    <Run Text="{Binding AddedText, Mode=OneWay}" Foreground="{StaticResource OkBrush}" FontWeight="SemiBold" /><Run Text="  " /><Run Text="{Binding RemovedText, Mode=OneWay}" Foreground="{StaticResource ErrBrush}" FontWeight="SemiBold" />
+                                </TextBlock>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding PreviewTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding PreviewTitle}" />
+                                    <TextBlock Text="{Binding PreviewSubtitle}" Opacity="0.7" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding PreviewSubtitle}" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+
+                        <Border Grid.Row="1" Padding="10,6" Background="{StaticResource SubtleFill}"
+                                Visibility="{Binding HasPreviewHint, Converter={StaticResource BoolToVis}}">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Left" FontFamily="{StaticResource IconFont}" Text="&#xE946;" Margin="0,2,8,0" Opacity="0.7" />
+                                <TextBlock Text="{Binding PreviewHint}" TextWrapping="Wrap" Opacity="0.9" />
+                            </DockPanel>
+                        </Border>
+
+                        <Grid Grid.Row="2">
+                            <ListBox ItemsSource="{Binding PreviewLines}" BorderThickness="0" Background="Transparent"
+                                     FontFamily="{StaticResource CodeFont}" FontSize="12"
+                                     ItemContainerStyle="{StaticResource DiffRowContainer}"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                     VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.ScrollUnit="Pixel">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid x:Name="Line" Background="Transparent">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="38" />
+                                                <ColumnDefinition Width="38" />
+                                                <ColumnDefinition Width="16" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock x:Name="OldNo" Text="{Binding OldNumber}" Opacity="0.45" TextAlignment="Right" Margin="0,0,6,0" />
+                                            <TextBlock x:Name="NewNo" Grid.Column="1" Text="{Binding NewNumber}" Opacity="0.45" TextAlignment="Right" Margin="0,0,6,0" />
+                                            <TextBlock x:Name="Sign" Grid.Column="2" Text="{Binding Sign}" FontWeight="Bold" Opacity="0.8" />
+                                            <TextBlock x:Name="Code" Grid.Column="3" Text="{Binding Text}" Padding="0,1,12,1" />
+                                        </Grid>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Kind}" Value="Removed">
+                                                <Setter TargetName="Line" Property="Background" Value="{StaticResource RemovedLineBrush}" />
+                                                <Setter TargetName="Sign" Property="Foreground" Value="{StaticResource ErrBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Kind}" Value="Added">
+                                                <Setter TargetName="Line" Property="Background" Value="{StaticResource AddedLineBrush}" />
+                                                <Setter TargetName="Sign" Property="Foreground" Value="{StaticResource OkBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Kind}" Value="Highlight">
+                                                <Setter TargetName="Line" Property="Background" Value="{StaticResource HighlightLineBrush}" />
+                                                <Setter TargetName="Sign" Property="Foreground" Value="{StaticResource WarnBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Kind}" Value="Gap">
+                                                <Setter TargetName="Code" Property="Opacity" Value="0.5" />
+                                                <Setter TargetName="Code" Property="FontStyle" Value="Italic" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Kind}" Value="File">
+                                                <Setter TargetName="Line" Property="Background" Value="{StaticResource SubtleFill}" />
+                                                <Setter TargetName="Line" Property="Margin" Value="0,6,0,2" />
+                                                <Setter TargetName="Code" Property="FontFamily" Value="Segoe UI" />
+                                                <Setter TargetName="Code" Property="FontWeight" Value="SemiBold" />
+                                                <Setter TargetName="Code" Property="Padding" Value="0,3,12,3" />
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <ProgressBar IsIndeterminate="True" Height="2" VerticalAlignment="Top" BorderThickness="0" Foreground="{StaticResource AccentBrush}"
+                                         Visibility="{Binding IsPreviewLoading, Converter={StaticResource BoolToVis}}" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Actions -->
+                <WrapPanel Grid.Row="4" Margin="12,0,12,2">
+                    <Button Style="{StaticResource AccentButton}" Command="{Binding ApplyCommand}" ToolTip="Apply the change shown in the preview">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8FB;" Margin="0,1,6,0" />
+                            <TextBlock Text="{Binding ApplyText}" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SubtleButton}" Command="{Binding SkipCommand}" ToolTip="Leave this one and go to the next issue">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE72A;" Margin="0,1,6,0" />
+                            <TextBlock Text="Skip" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SubtleButton}" Command="{Binding GoToCodeCommand}" ToolTip="Open the file at this line (or double-click the issue)">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE943;" Margin="0,1,6,0" />
+                            <TextBlock Text="Go to code" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SubtleButton}" Command="{Binding PreviewPageCommand}" ToolTip="Preview fixes for every ticked rule on this page, then approve them together">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8FD;" Margin="0,1,6,0" />
+                            <TextBlock Text="Fix ticked on page…" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SubtleButton}" Command="{Binding FixRuleEverywhereCommand}" ToolTip="Preview this rule's fix in every file of the solution">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE774;" Margin="0,1,6,0" />
+                            <TextBlock Text="Fix rule in solution…" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SubtleButton}" Command="{Binding DiscardPreviewCommand}" Content="Discard preview"
+                            Visibility="{Binding IsBulkPreview, Converter={StaticResource BoolToVis}}" />
+                </WrapPanel>
+            </Grid>
+        </Grid>
+
+        <!-- ============ Status ============ -->
+        <Border Grid.Row="5" Padding="12,6" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowBorderKey}}">
+            <TextBlock Text="{Binding StatusText}" Opacity="0.8" TextTrimming="CharacterEllipsis" ToolTip="{Binding StatusText}" />
+        </Border>
+    </Grid>
+</UserControl>

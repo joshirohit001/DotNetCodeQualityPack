@@ -1,0 +1,85 @@
+# Code Quality Rules
+
+This file is read by the **.NET Code Quality Pack** extension
+(**Tools > .NET Code Quality > Open Team Rules**). Edit it, save, then use the buttons in the Team Rules window:
+**Apply to .editorconfig**, **Check custom rules** and **AI review**.
+
+## Severity overrides
+
+Change how strongly an existing analyzer rule is reported.
+Severity: `none`, `silent`, `suggestion`, `warning` or `error`.
+
+| Rule   | Severity | Why |
+|--------|----------|-----|
+| SA1101 | none     | We don't prefix calls with `this.` |
+| SA1633 | none     | No file headers. |
+| SA1413 | none     | Trailing commas are optional. |
+| S1854  | error    | Dead assignments hide bugs. |
+| CA2007 | none     | ASP.NET Core has no synchronization context. |
+
+## EditorConfig settings
+
+Any .editorconfig setting, applied to all C# files.
+
+| Key | Value | Why |
+|-----|-------|-----|
+| csharp_style_namespace_declarations | file_scoped:warning | One namespace style across the solution. |
+| csharp_prefer_braces | true:warning | Always use braces. |
+
+## Custom rules
+
+One `###` heading per rule, written as `ID: Title`, followed by `- key: value` lines:
+
+- `severity`: none, suggestion, warning or error (default warning)
+- `files`: which files, for example `**/Controllers/*.cs` (default all `.cs` files); several separated by commas
+- `exclude`: files to skip
+- `pattern`: a regular expression, or `text`: plain text to look for
+- `message`: what the developer sees
+- `replace`: optional automatic fix; the match is replaced by this text (`$1` inserts a captured group)
+- `ignore-comments`: true (default) skips matches inside comments
+
+### TEAM001: No DbContext in controllers
+- severity: warning
+- files: **/Controllers/*.cs
+- pattern: \b\w*DbContext\b
+- message: Controllers must go through a MediatR handler or service, not the DbContext.
+
+### TEAM002: Use UTC time
+- severity: warning
+- files: **/*.cs
+- text: DateTime.Now
+- replace: DateTime.UtcNow
+- message: Use DateTime.UtcNow so stored times don't depend on the server's time zone.
+
+### TEAM003: No hard-coded connection strings
+- severity: error
+- files: **/*.cs
+- exclude: **/Migrations/*.cs
+- pattern: "(Server|Data Source)=[^"]+"
+- message: Read connection strings from configuration, never from code.
+
+### TEAM004: No Console.WriteLine in application code
+- severity: warning
+- files: **/*.cs
+- exclude: **/Program.cs
+- pattern: \bConsole\.WriteLine\(
+- message: Use ILogger instead of Console.WriteLine.
+
+## AI review context
+
+Facts about your codebase, sent with every AI review so the model judges the code correctly. These are not rules.
+The C# language version and target framework are detected from the project automatically.
+
+- Primary constructors (`public class OrderController(IMediator mediator)`) are our standard way to inject dependencies.
+- Controllers delegate to MediatR handlers; injecting `IMediator` is expected.
+
+## AI review guidelines
+
+Plain-language rules checked by **AI review**. Keep each one short and specific.
+
+- Methods should do one thing; split methods longer than about 40 lines.
+- Names must describe intent: no abbreviations like `mgr`, `tmp` or `obj`.
+- Catch blocks must log the exception with context or rethrow it; never swallow exceptions silently.
+- Public methods validate their arguments and throw ArgumentException or ArgumentNullException.
+- Methods that return collections never return null; return an empty collection instead.
+- Async methods must be awaited; never call .Result or .Wait() on a Task.

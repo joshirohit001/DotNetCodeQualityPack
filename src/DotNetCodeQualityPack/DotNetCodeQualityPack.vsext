@@ -1,0 +1,24 @@
+{
+  "id": "DotNetCodeQualityPack",
+  "name": ".NET Code Quality Pack",
+  "description": "Roslynator, SonarQube for IDE, CodeMaid and Fine Code Coverage for Visual Studio 2022.",
+  "version": "1.0.0.0",
+  "extensions": [
+    {
+      "vsixId": "f326ee1b-81a6-4577-b251-1f29d391cef3",
+      "name": "Roslynator 2022"
+    },
+    {
+      "vsixId": "SonarLint.0DE19254-1DCA-4479-8EAF-58E5D677FF4D",
+      "name": "SonarQube for Visual Studio"
+    },
+    {
+      "vsixId": "9079e73d-3fbb-4e07-8dab-f44fa5d8e8b5",
+      "name": "CodeMaid VS2022"
+    },
+    {
+      "vsixId": "FineCodeCoverage2022.ad53fb28-7a11-4465-a27a-3550499ea4a1",
+      "name": "Fine Code Coverage 2022"
+    }
+  ]
+}

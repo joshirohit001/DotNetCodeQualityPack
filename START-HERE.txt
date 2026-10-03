@@ -1,0 +1,22 @@
+.NET Code Quality Pack 2.0 (Code Compass) - quick start
+=========================================================
+
+1. Open DotNetCodeQualityPack.sln in Visual Studio 2022 and press F5.
+   The Experimental Instance starts with the extension installed.
+
+2. Tools > .NET Code Quality > Open Code Compass
+   gear icon > Configure…   (or Team Rules > gear icon > AI providers…)
+
+3. Tick the provider(s) you use and fill in your own details:
+     OpenAI     API key (required), model names e.g. gpt-4.1, API URL optional
+     Anthropic  API key (required), model names e.g. claude-sonnet-5-5
+     Ollama     no key; API URL http://localhost:11434 (default); any model you pulled
+   Click "Test connection", then Save.
+
+4. Pick a model in the dropdown and start chatting / reviewing.
+
+Nothing is preconfigured and no other server is involved: requests go straight from
+Visual Studio to the provider you choose. Settings live in
+%LOCALAPPDATA%\DotNetCodeQualityPack\ai-providers.json (API keys encrypted with DPAPI).
+
+To build the installable .vsix / Setup.exe: installer\Build-Installers.cmd (see README.md).

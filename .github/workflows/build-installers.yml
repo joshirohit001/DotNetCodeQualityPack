@@ -1,0 +1,29 @@
+# Optional: builds the .vsix and Setup.exe on a GitHub-hosted Windows machine (VS 2022 is preinstalled there).
+# Run it from the Actions tab (Run workflow), or push a tag like v1.6.0. Download the result from the run's Artifacts.
+name: Build installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build .vsix files and installer
+        shell: pwsh
+        run: ./installer/Build-Installers.ps1
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: DotNetCodeQualityPack-installers
+          path: |
+            dist/*.exe
+            dist/*.zip
